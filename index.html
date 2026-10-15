@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#2196F3">
+  <meta name="description" content="Mój wielofunkcyjny dashboard PWA">
+  
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/png" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect fill='%232196F3' width='192' height='192'/><text x='50%' y='50%' font-size='120' text-anchor='middle' dominant-baseline='middle' fill='white'>📊</text></svg>">
+  <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect fill='%232196F3' width='192' height='192'/><text x='50%' y='50%' font-size='120' text-anchor='middle' dominant-baseline='middle' fill='white'>📊</text></svg>">
+  
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/responsive.css">
+  
+  <title>Mój Dashboard</title>
+</head>
+<body>
+  <div class="container">
+    <!-- Header z ustawieniami -->
+    <header class="header">
+      <h1>📊 Mój Dashboard</h1>
+      <div class="header-actions">
+        <span class="connection-status" id="connectionStatus">🟢 Online</span>
+        <button class="settings-btn" id="settingsBtn" aria-label="Ustawienia">⚙️</button>
+      </div>
+    </header>
+
+    <!-- Sekcja powiadomień -->
+    <div class="notifications" id="notifications"></div>
+
+    <!-- Główna zawartość -->
+    <main class="dashboard">
+      
+      <!-- SEKCJA: POGODA -->
+      <section class="widget weather-widget" id="weatherWidget">
+        <div class="widget-header">
+          <h2>🌤️ Pogoda</h2>
+          <button class="refresh-btn" data-widget="weather" title="Odśwież">🔄</button>
+        </div>
+        <div class="widget-content" id="weatherContent">
+          <div class="skeleton-loader"></div>
+        </div>
+      </section>
+
+      <!-- SEKCJA: CYTATY MOTYWACYJNE -->
+      <section class="widget quote-widget" id="quoteWidget">
+        <div class="widget-header">
+          <h2>✨ Cytat dnia</h2>
+          <button class="refresh-btn" data-widget="quote" title="Nowy cytat">🔄</button>
+        </div>
+        <div class="widget-content" id="quoteContent">
+          <div class="skeleton-loader"></div>
+        </div>
+      </section>
+
+      <!-- SEKCJA: FILMY POLECANE -->
+      <section class="widget movies-widget" id="moviesWidget">
+        <div class="widget-header">
+          <h2>🎬 Film polecany</h2>
+          <button class="refresh-btn" data-widget="movies" title="Inny film">🔄</button>
+        </div>
+        <div class="widget-content" id="moviesContent">
+          <div class="skeleton-loader"></div>
+        </div>
+      </section>
+
+      <!-- SEKCJA: LISTA ZADAŃ -->
+      <section class="widget tasks-widget" id="tasksWidget">
+        <div class="widget-header">
+          <h2>✅ Moja lista zadań</h2>
+          <button class="refresh-btn" data-widget="tasks" title="Synchronizuj">🔄</button>
+        </div>
+        <div class="widget-content">
+          <div id="tasksList"></div>
+          <div class="task-input-section">
+            <input 
+              type="text" 
+              id="newTaskInput" 
+              placeholder="Dodaj nowe zadanie..."
+              class="task-input"
+            >
+            <button id="addTaskBtn" class="btn btn-primary">Dodaj</button>
+          </div>
+          <div class="sync-status" id="syncStatus"></div>
+        </div>
+      </section>
+
+    </main>
+
+  </div>
+
+  <!-- Modal ustawień -->
+  <div class="modal" id="settingsModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>⚙️ Ustawienia</h2>
+        <button class="close" id="closeSettingsBtn">&times;</button>
+      </div>
+      <form id="settingsForm">
+        <div class="form-group">
+          <label for="cityName">
+            <strong>Miasto do pogody:</strong>
+            <span class="hint">(np. Warszawa, London, New York)</span>
+          </label>
+          <input type="text" id="cityName" placeholder="Podaj miasto">
+        </div>
+
+        <div class="form-group">
+          <label for="apiKeyWeather">
+            <strong>API Key OpenWeatherMap (opcjonalnie):</strong>
+            <span class="hint">Pobierz darmowy z <a href="https://openweathermap.org/api" target="_blank">openweathermap.org</a></span>
+          </label>
+          <input type="password" id="apiKeyWeather" placeholder="Wklej klucz API">
+        </div>
+
+        <div class="form-group">
+          <label for="googleSheetId">
+            <strong>ID Google Sheets (opcjonalnie):</strong>
+            <span class="hint">Aby zsynchronizować zadania z Google Sheets</span>
+          </label>
+          <input type="text" id="googleSheetId" placeholder="Wklej ID arkusza">
+        </div>
+        
+        <div class="form-group">
+          <label for="googleSheetKey">
+            <strong>Klucz API Google Sheets:</strong>
+            <span class="hint">Pobierz z Google Cloud Console</span>
+          </label>
+          <input type="password" id="googleSheetKey" placeholder="Wklej klucz API">
+        </div>
+        
+        <div class="form-group">
+          <label>
+            <input type="checkbox" id="offlineMode">
+            <strong>Tryb offline</strong>
+            <span class="hint">(mniej danych, więcej cache)</span>
+          </label>
+        </div>
+
+        <div class="form-group">
+          <label>
+            <input type="checkbox" id="autoRefresh">
+            <strong>Automatyczne odświeżanie co 10 minut</strong>
+          </label>
+        </div>
+        
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">💾 Zapisz ustawienia</button>
+          <button type="button" class="btn btn-secondary" id="clearCacheBtn">🗑️ Wyczyść cache</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Ładowanie Service Workera -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('service-worker.js')
+          .then(reg => {
+            console.log('✅ Service Worker zarejestrowany');
+            // Słuchaj na aktualizacje
+            reg.addEventListener('updatefound', () => {
+              const newWorker = reg.installing;
+              newWorker.addEventListener('statechange', () => {
+                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                  showNotification('Nowa wersja dostępna! Przeładuj stronę.', 'info');
+                }
+              });
+            });
+          })
+          .catch(err => console.error('❌ SW błąd:', err));
+      });
+    }
+
+    // Monitorowanie połączenia
+    window.addEventListener('online', () => {
+      document.getElementById('connectionStatus').textContent = '🟢 Online';
+    });
+    window.addEventListener('offline', () => {
+      document.getElementById('connectionStatus').textContent = '🔴 Offline';
+    });
+  </script>
+
+  <!-- Skrypty aplikacji -->
+  <script src="js/api-handler.js"></script>
+  <script src="js/weather.js"></script>
+  <script src="js/quotes.js"></script>
+  <script src="js/movies.js"></script>
+  <script src="js/tasks.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
