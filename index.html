@@ -115,19 +115,19 @@
         </div>
 
         <div class="form-group">
-          <label for="googleSheetId">
-            <strong>ID Google Sheets (opcjonalnie):</strong>
-            <span class="hint">Aby zsynchronizować zadania z Google Sheets</span>
+          <label for="tasksEndpoint">
+            <strong>Adres aplikacji Google Apps Script:</strong>
+            <span class="hint">Adres wdrożonej aplikacji internetowej kończący się na /exec</span>
           </label>
-          <input type="text" id="googleSheetId" placeholder="Wklej ID arkusza">
+          <input type="url" id="tasksEndpoint" placeholder="https://script.google.com/macros/s/.../exec">
         </div>
-        
+
         <div class="form-group">
-          <label for="googleSheetKey">
-            <strong>Klucz API Google Sheets:</strong>
-            <span class="hint">Pobierz z Google Cloud Console</span>
+          <label for="tasksAccessToken">
+            <strong>Wspólny token dostępu:</strong>
+            <span class="hint">Ten sam token ustaw w skrypcie i na każdym urządzeniu. Traktuj go jak hasło.</span>
           </label>
-          <input type="password" id="googleSheetKey" placeholder="Wklej klucz API">
+          <input type="password" id="tasksAccessToken" placeholder="Wklej token dostępu">
         </div>
         
         <div class="form-group">

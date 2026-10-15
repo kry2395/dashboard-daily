@@ -33,8 +33,8 @@ function populateSettingsForm() {
   const settings = readSettings();
   document.getElementById('cityName').value = settings.cityName || 'Warszawa';
   document.getElementById('apiKeyWeather').value = settings.apiKeyWeather || '';
-  document.getElementById('googleSheetId').value = settings.googleSheetId || '';
-  document.getElementById('googleSheetKey').value = settings.googleSheetKey || '';
+  document.getElementById('tasksEndpoint').value = settings.tasksEndpoint || '';
+  document.getElementById('tasksAccessToken').value = settings.tasksAccessToken || '';
   document.getElementById('offlineMode').checked = Boolean(settings.offlineMode);
   document.getElementById('autoRefresh').checked = Boolean(settings.autoRefresh);
 }
@@ -88,14 +88,15 @@ function bindSettings() {
       ...readSettings(),
       cityName,
       apiKeyWeather: document.getElementById('apiKeyWeather').value.trim(),
-      googleSheetId: document.getElementById('googleSheetId').value.trim(),
-      googleSheetKey: document.getElementById('googleSheetKey').value.trim(),
+      tasksEndpoint: document.getElementById('tasksEndpoint').value.trim(),
+      tasksAccessToken: document.getElementById('tasksAccessToken').value.trim(),
       offlineMode: document.getElementById('offlineMode').checked,
       autoRefresh: document.getElementById('autoRefresh').checked
     };
 
     try {
       localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+      await tasksModule.configure(settings);
       weatherModule.loadSettings();
       await weatherModule.refresh();
       setSettingsModal(false);
@@ -178,6 +179,7 @@ function initDashboard() {
     quotesModule.init();
     moviesModule.init();
     tasksModule.init();
+    tasksModule.configure(settings);
     updateAutoRefresh(Boolean(settings.autoRefresh));
   } catch (error) {
     console.error('Nie udało się uruchomić dashboardu:', error);
