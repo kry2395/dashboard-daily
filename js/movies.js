@@ -1,27 +1,7 @@
-/**
- * MODUŁ FILMÓW POLECANYCH
- * Pobiera dane z OMDb API lub YouTube
- */
-
 class MoviesModule {
   constructor() {
     this.element = document.getElementById('moviesContent');
-    this.popularMovies = this.getPopularMovies();
-  }
-
-  /**
-   * Inicjalizuj moduł
-   */
-  init() {
-    console.log('🎬 Inicjalizacja Movies Module...');
-    this.render();
-  }
-
-  /**
-   * Popularne filmy (demo)
-   */
-  getPopularMovies() {
-    return [
+    this.popularMovies = [
       {
         title: 'Forrest Gump',
         year: 1994,
@@ -61,30 +41,27 @@ class MoviesModule {
     ];
   }
 
-  /**
-   * Pobierz film z API
-   */
-  async fetchMovie() {
-    try {
-      console.log('🌐 Pobieranie filmu...');
-      
-      // Losowy film z listy
-      const randomMovie = this.getRandomMovie();
-      return randomMovie;
-    } catch (error) {
-      console.error('❌ Błąd pobierania filmu:', error);
-      return this.getRandomMovie();
-    }
+  init() {
+    this.render();
   }
 
-  /**
-   * Losowy film
-   */
   getRandomMovie() {
-    const index = Math.floor(Math.random() * this.popularMovies.length);
-    return this.popularMovies[index];
+    return this.popularMovies[Math.floor(Math.random() * this.popularMovies.length)];
   }
 
-  /**
-   * Renderuj interfejs
-   */
+  render() {
+    const movie = this.getRandomMovie();
+    this.element.innerHTML = `
+      <div class="movie-title">${movie.title}</div>
+      <div class="movie-year">${movie.year}</div>
+      <div class="movie-rating">★ ${movie.rating}/10</div>
+      <p class="movie-description">${movie.description}</p>
+    `;
+  }
+
+  refresh() {
+    this.render();
+  }
+}
+
+const moviesModule = new MoviesModule();

@@ -6,7 +6,7 @@
 
 class WeatherModule {
   constructor() {
-    this.apiKey = 0f7e7a90f758b9d38e0a9205ad1c23c6;
+    this.apiKey = '';
     this.city = 'Warszawa';
     this.units = 'metric'; // Celsjusz
     this.element = document.getElementById('weatherContent');
@@ -28,7 +28,7 @@ class WeatherModule {
     const saved = localStorage.getItem('dashboardSettings');
     if (saved) {
       const settings = JSON.parse(saved);
-      this.apiKey = settings.apiKeyWeather;
+      this.apiKey = settings.apiKeyWeather || '';
       this.city = settings.cityName || 'Warszawa';
     }
   }
@@ -38,48 +38,18 @@ class WeatherModule {
    */
   async fetchWeather() {
     if (!this.apiKey) {
-      console.warn('⚠️ Brak API key dla pogody');
-      return this.getDefaultWeather();
+      throw new Error('Dodaj klucz API OpenWeatherMap w ustawieniach.');
     }
 
-    try {
-      const url = `https://api.openweathermap.org/data/2.5/weather?q=${this.city}&appid=${this.apiKey}&units=${this.units}&lang=pl`;
-      console.log('🌐 Pobieranie pogody dla:', this.city);
-      
-      const data = await apiHandler.fetch(url, {}, 30 * 60 * 1000); // 30 min cache
-      return data;
-    } catch (error) {
-      console.error('❌ Błąd pobierania pogody:', error);
-      return this.getDefaultWeather();
-    }
-  }
-
-  /**
-   * Pogoda domyślna (demo)
-   */
-  getDefaultWeather() {
-    return {
-      name: this.city,
-      main: {
-        temp: 15,
-        feels_like: 13,
-        humidity: 65,
-        pressure: 1013
-      },
-      weather: [
-        {
-          main: 'Chmurno',
-          description: 'Przeważnie chmurnie',
-          icon: '04d'
-        }
-      ],
-      wind: {
-        speed: 12
-      },
-      sys: {
-        country: 'PL'
-      }
-    };
+    const params = new URLSearchParams({
+      q: this.city,
+      appid: this.apiKey,
+      units: this.units,
+      lang: 'pl'
+    });
+    const url = `https://api.openweathermap.org/data/2.5/weather?${params}`;
+    console.log('🌐 Pobieranie pogody dla:', this.city);
+    return apiHandler.fetch(url, {}, 30 * 60 * 1000);
   }
 
   /**
@@ -127,10 +97,13 @@ class WeatherModule {
       console.log('✅ Pogoda załadowana');
     } catch (error) {
       console.error('❌ Błąd renderowania pogody:', error);
+      const message = this.apiKey
+        ? 'Nie udało się pobrać pogody. Sprawdź miasto, klucz API i połączenie z internetem.'
+        : 'Dodaj klucz API OpenWeatherMap w ustawieniach, aby pobrać pogodę.';
       this.element.innerHTML = `
         <div style="color: #f44336; text-align: center; padding: 20px;">
           <p>❌ Nie można załadować pogody</p>
-          <p style="font-size: 12px; margin-top: 8px;">Sprawdź API key w ustawieniach</p>
+          <p style="font-size: 12px; margin-top: 8px;">${message}</p>
         </div>
       `;
     }

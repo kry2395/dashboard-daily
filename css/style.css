@@ -349,4 +349,6 @@ body {
 .task-item {
   padding: 12px;
   background: var(--light-bg);
-  border-left: 4px solid var
+  border-left: 4px solid var(--primary-color);
+  border-radius: 4px;
+}
