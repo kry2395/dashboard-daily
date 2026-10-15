@@ -1,6 +1,6 @@
 /**
- * Handler zarządzający żądaniami do API z obsługą CORS
- * i cacheowaniem wyników
+ * HANDLER ZARZĄDZAJĄCY ŻĄDANIAMI DO API
+ * Obsługa CORS i cacheowania
  */
 
 class APIHandler {
@@ -10,13 +10,10 @@ class APIHandler {
   }
 
   /**
-   * Pobiera dane z API z automatycznym fallbackiem
-   * @param {string} url - URL do pobrania
-   * @param {object} options - Opcje fetch
-   * @param {number} cacheTtl - Czas cache w ms
+   * Pobiera dane z API
    */
   async fetch(url, options = {}, cacheTtl = this.cacheDuration) {
-    const cacheKey = `${url}:${JSON.stringify(options)}`;
+    const cacheKey = `${url}`;
 
     // Sprawdź cache
     if (this.cache.has(cacheKey)) {
@@ -31,6 +28,7 @@ class APIHandler {
       console.log('🔄 Pobieranie z sieci:', url);
       
       const response = await fetch(url, {
+        method: 'GET',
         headers: {
           'Accept': 'application/json',
           ...options.headers
@@ -65,21 +63,12 @@ class APIHandler {
   }
 
   /**
-   * Proxy przez CORS proxy (dla API bez CORS headers)
-   */
-  async fetchWithCORS(url, options = {}) {
-    // Użyj publicznego CORS proxy
-    const proxyUrl = `https://cors-anywhere.herokuapp.com/${url}`;
-    return this.fetch(proxyUrl, options);
-  }
-
-  /**
    * Pobiera dane z Google Sheets
    */
   async getGoogleSheetData(sheetId, apiKey, range = 'A1:Z100') {
     const url = 
       `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}?key=${apiKey}`;
-    return this.fetch(url);
+    return this.fetch(url, {}, 10 * 60 * 1000); // 10 minut cache
   }
 
   /**
@@ -91,14 +80,14 @@ class APIHandler {
   }
 
   /**
-   * Zwraca rozmiar cache w MB
+   * Zwraca rozmiar cache
    */
   getCacheSize() {
     let size = 0;
     for (let [key, value] of this.cache) {
       size += JSON.stringify(value).length;
     }
-    return (size / 1024 / 1024).toFixed(2);
+    return (size / 1024).toFixed(2);
   }
 }
 
